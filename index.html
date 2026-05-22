@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Studio Hair</title>
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="app">
+  <!-- DASHBOARD -->
+  <div class="screen active" id="screen-home">
+    <div class="top-bar">
+      <div class="top-bar-inner">
+        <div class="logo">Studio <span>Hair</span></div>
+        <button class="icon-btn" onclick="toggleTheme()">🌙</button>
+      </div>
+    </div>
+    <div class="dash-hero">
+      <div class="hero-label">Ganhos de Hoje</div>
+      <div class="hero-value" id="hero-total">R$ 0</div>
+      <div class="hero-sub" id="hero-date"></div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-val" id="stat-apts">0</div>
+          <div class="hero-stat-label">Atendimentos</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-val" id="stat-done">0</div>
+          <div class="hero-stat-label">Concluídos</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-val" id="stat-pending">0</div>
+          <div class="hero-stat-label">Pendentes</div>
+        </div>
+      </div>
+    </div>
+    <div class="section-header">
+      <div class="section-title">Próximo Cliente</div>
+      <div class="section-action" onclick="showScreen('agenda')">Ver agenda →</div>
+    </div>
+    <div id="next-client-area"></div>
+    <button class="big-btn" onclick="openNewApt()">
+      <span>✦</span> Novo Agendamento
+    </button>
+    <div class="section-header">
+      <div class="section-title">Hoje</div>
+    </div>
+    <div id="home-apt-list" style="padding: 0 16px;"></div>
+  </div>
+
+  <!-- AGENDA -->
+  <div class="screen" id="screen-agenda">
+    <div class="top-bar">
+      <div class="top-bar-inner">
+        <div class="logo">Agenda</div>
+        <button class="icon-btn" onclick="openNewApt()">＋</button>
+      </div>
+    </div>
+    <div class="date-strip" id="date-strip"></div>
+    <div class="apt-list" id="agenda-list"></div>
+  </div>
+
+  <!-- CLIENTES -->
+  <div class="screen" id="screen-clients">
+    <div class="top-bar">
+      <div class="top-bar-inner">
+        <div class="logo">Clientes</div>
+        <button class="icon-btn" onclick="openAddClient()">＋</button>
+      </div>
+    </div>
+    <div class="search-bar">
+      <span class="search-icon">🔍</span>
+      <input type="text" placeholder="Buscar cliente..." id="client-search" oninput="renderClients()">
+    </div>
+    <div id="clients-list"></div>
+  </div>
+
+  <!-- FINANCEIRO -->
+  <div class="screen" id="screen-fin">
+    <div class="top-bar">
+      <div class="top-bar-inner">
+        <div class="logo">Financeiro</div>
+      </div>
+    </div>
+    <div class="fin-tabs">
+      <div class="fin-tab active" onclick="setFinTab('day',this)">Hoje</div>
+      <div class="fin-tab" onclick="setFinTab('week',this)">Semana</div>
+      <div class="fin-tab" onclick="setFinTab('month',this)">Mês</div>
+    </div>
+    <div id="fin-summary" class="fin-summary"></div>
+    <div class="section-header"><div class="section-title">Atendimentos</div></div>
+    <div class="card" style="margin: 0 16px; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); background: var(--surface);">
+      <div id="fin-list"></div>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+
+  <!-- CONFIG -->
+  <div class="screen" id="screen-config">
+    <div class="top-bar">
+      <div class="top-bar-inner">
+        <div class="logo">Config.</div>
+      </div>
+    </div>
+    <div style="padding-top:12px">
+      <div class="section-label">Salão</div>
+      <div class="config-section">
+        <div class="config-item">
+          <div class="config-item-left">
+            <div class="config-item-icon">✂️</div>
+            <div>
+              <div class="config-item-text">Nome do salão</div>
+              <div class="config-item-sub" id="salon-name-display">Studio Hair</div>
+            </div>
+          </div>
+          <span style="color:var(--text-sub)">›</span>
+        </div>
+        <div class="config-input-item">
+          <input class="form-input" id="salon-name-input" placeholder="Nome do salão" oninput="saveSalonName()">
+        </div>
+      </div>
+
+      <div class="section-label">Aparência</div>
+      <div class="config-section">
+        <div class="config-item" onclick="toggleTheme()">
+          <div class="config-item-left">
+            <div class="config-item-icon">🌙</div>
+            <div>
+              <div class="config-item-text">Modo escuro</div>
+              <div class="config-item-sub">Alternar tema</div>
+            </div>
+          </div>
+          <label class="toggle" onclick="event.stopPropagation()">
+            <input type="checkbox" id="dark-toggle" onchange="toggleTheme()">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="section-label">Serviços</div>
+      <div class="config-section" id="services-config">
+      </div>
+      <button class="big-btn" onclick="openAddService()" style="margin-top:0">＋ Novo Serviço</button>
+
+      <div class="section-label">Horários de Funcionamento</div>
+      <div class="config-section">
+        <div style="padding: 16px 20px 4px;">
+          <div style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">Toque para marcar/desmarcar horários disponíveis:</div>
+          <div class="hours-grid" id="hours-grid"></div>
+        </div>
+      </div>
+
+      <div class="section-label">Dados</div>
+      <div class="config-section">
+        <div class="config-item" onclick="exportData()">
+          <div class="config-item-left">
+            <div class="config-item-icon">📤</div>
+            <div><div class="config-item-text">Exportar dados</div></div>
+          </div>
+          <span style="color:var(--text-sub)">›</span>
+        </div>
+        <div class="config-item" onclick="confirmClear()">
+          <div class="config-item-left">
+            <div class="config-item-icon">🗑️</div>
+            <div><div class="config-item-text" style="color:var(--danger)">Limpar todos os dados</div></div>
+          </div>
+          <span style="color:var(--text-sub)">›</span>
+        </div>
+      </div>
+      <div style="height:16px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav id="bottom-nav">
+  <div class="nav-item active" onclick="showScreen('home')" data-screen="home">
+    <div class="nav-icon">🏠</div>
+    <div class="nav-label">Início</div>
+  </div>
+  <div class="nav-item" onclick="showScreen('agenda')" data-screen="agenda">
+    <div class="nav-icon">📅</div>
+    <div class="nav-label">Agenda</div>
+  </div>
+  <div class="nav-item" onclick="showScreen('clients')" data-screen="clients">
+    <div class="nav-icon">👤</div>
+    <div class="nav-label">Clientes</div>
+  </div>
+  <div class="nav-item" onclick="showScreen('fin')" data-screen="fin">
+    <div class="nav-icon">💰</div>
+    <div class="nav-label">Finanças</div>
+  </div>
+  <div class="nav-item" onclick="showScreen('config')" data-screen="config">
+    <div class="nav-icon">⚙️</div>
+    <div class="nav-label">Config</div>
+  </div>
+</nav>
+
+<!-- FAB -->
+<button id="fab" onclick="openNewApt()">＋</button>
+
+<!-- MODAL: AGENDAMENTO -->
+<div class="modal-overlay" id="modal-apt">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-apt-title">Novo Agendamento</div>
+    <div class="form-group">
+      <label class="form-label">Cliente</label>
+      <input class="form-input" id="apt-client" placeholder="Nome do cliente" list="clients-datalist">
+      <datalist id="clients-datalist"></datalist>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Serviço</label>
+      <select class="form-input" id="apt-service" onchange="fillServicePrice()">
+        <option value="">Selecionar serviço</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Data</label>
+        <input class="form-input" type="date" id="apt-date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Horário</label>
+        <input class="form-input" type="time" id="apt-time">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Valor (R$)</label>
+      <input class="form-input" type="number" id="apt-value" placeholder="0,00" step="0.01">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Observação (opcional)</label>
+      <input class="form-input" id="apt-obs" placeholder="Ex: trazer foto de referência">
+    </div>
+    <div class="form-actions">
+      <button class="btn-cancel" onclick="closeModal('modal-apt')">Cancelar</button>
+      <button class="btn-save" onclick="saveApt()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: CLIENTE -->
+<div class="modal-overlay" id="modal-client">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-client-title">Novo Cliente</div>
+    <div class="form-group">
+      <label class="form-label">Nome</label>
+      <input class="form-input" id="client-name-input" placeholder="Nome completo">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Telefone</label>
+      <input class="form-input" id="client-phone-input" placeholder="(11) 99999-9999" type="tel">
+    </div>
+    <div class="form-actions">
+      <button class="btn-cancel" onclick="closeModal('modal-client')">Cancelar</button>
+      <button class="btn-save" onclick="saveClient()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: SERVIÇO -->
+<div class="modal-overlay" id="modal-service">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-service-title">Novo Serviço</div>
+    <div class="form-group">
+      <label class="form-label">Nome do Serviço</label>
+      <input class="form-input" id="service-name-input" placeholder="Ex: Corte masculino">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Preço (R$)</label>
+        <input class="form-input" type="number" id="service-price-input" placeholder="0,00" step="0.01">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Duração (min)</label>
+        <input class="form-input" type="number" id="service-dur-input" placeholder="30">
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-cancel" onclick="closeModal('modal-service')">Cancelar</button>
+      <button class="btn-save" onclick="saveService()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: CLIENT DETAIL -->
+<div class="modal-overlay" id="modal-client-detail">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div style="padding: 0 24px 20px; display: flex; align-items: center; gap: 16px;">
+      <div class="client-avatar" id="detail-avatar" style="width:56px;height:56px;font-size:22px;"></div>
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;" id="detail-name"></div>
+        <div style="color:var(--text-muted);font-size:14px;margin-top:3px;" id="detail-phone"></div>
+      </div>
+    </div>
+    <div style="padding: 0 24px; margin-bottom: 8px;">
+      <div style="display:flex;gap:12px;margin-bottom:20px;">
+        <div style="flex:1;background:var(--surface2);border-radius:12px;padding:14px;text-align:center;">
+          <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;" id="detail-count">0</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Visitas</div>
+        </div>
+        <div style="flex:1;background:var(--gold-dim);border-radius:12px;padding:14px;text-align:center;border:1px solid rgba(201,168,76,0.2);">
+          <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--gold);" id="detail-total">R$0</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Total gasto</div>
+        </div>
+      </div>
+      <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:12px;">Histórico</div>
+      <div id="detail-history"></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-cancel" onclick="closeModal('modal-client-detail')">Fechar</button>
+      <button class="btn-save" style="background:var(--danger)" onclick="deleteCurrentClient()">🗑 Excluir</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM -->
+<div class="confirm-overlay" id="confirm-dialog">
+  <div class="confirm-box">
+    <div class="confirm-title" id="confirm-title">Confirmar</div>
+    <div class="confirm-msg" id="confirm-msg"></div>
+    <div class="confirm-btns">
+      <button class="confirm-cancel" onclick="closeConfirm()">Cancelar</button>
+      <button class="confirm-ok" id="confirm-ok-btn">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script src="js/app.js"></script>
+</body>
+</html>

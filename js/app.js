@@ -10,7 +10,7 @@ let state = {
     { id: uid(), name: 'Hidratação', price: 50, duration: 45 },
   ], 
   hours: ['08:00','09:00','10:00','11:00','13:00','14:00','15:00','16:00','17:00','18:00'],
-  salonName: 'Studio Hair',
+  salonName: 'ADS Barber',
   darkMode: true
 };
 let editingAptId = null;
@@ -451,7 +451,7 @@ function renderConfig() {
 
 function saveSalonName() {
   state.salonName = document.getElementById('salon-name-input').value;
-  document.getElementById('salon-name-display').textContent = state.salonName || 'Studio Hair';
+  document.getElementById('salon-name-display').textContent = state.salonName || 'ADS Barber';
   save();
 }
 
@@ -506,7 +506,7 @@ function exportData() {
   const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = 'studio-hair-backup.json'; a.click();
+  a.href = url; a.download = 'ads-barber-backup.json'; a.click();
   showToast('📤 Dados exportados!', 'success');
 }
 

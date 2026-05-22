@@ -8,7 +8,7 @@ let state = {
     { id: uid(), name: 'Barba', price: 25, duration: 20 },
     { id: uid(), name: 'Coloração', price: 120, duration: 90 },
     { id: uid(), name: 'Hidratação', price: 50, duration: 45 },
-  ],
+  ], 
   hours: ['08:00','09:00','10:00','11:00','13:00','14:00','15:00','16:00','17:00','18:00'],
   salonName: 'Studio Hair',
   darkMode: true
